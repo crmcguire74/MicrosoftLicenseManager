@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Microsoft License Feature Selector</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #0078d4 0%, #106ebe 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .feature-selector {
+            padding: 30px;
+            background: #f8f9fa;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .feature-selector h2 {
+            color: #0078d4;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px;
+            background: white;
+            border-radius: 8px;
+            border: 2px solid #e9ecef;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .feature-item:hover {
+            border-color: #0078d4;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .feature-item.selected {
+            border-color: #0078d4;
+            background: #e3f2fd;
+        }
+
+        .feature-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: #0078d4;
+        }
+
+        .feature-item label {
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .grid-container {
+            padding: 30px;
+            overflow-x: auto;
+        }
+
+        .license-grid {
+            display: grid;
+            grid-template-columns: 250px repeat(var(--feature-count), 120px);
+            gap: 1px;
+            background: #dee2e6;
+            border-radius: 8px;
+            overflow: hidden;
+            min-width: fit-content;
+        }
+
+        .grid-header {
+            background: #0078d4;
+            color: white;
+            padding: 15px 10px;
+            font-weight: 600;
+            text-align: center;
+            font-size: 0.9rem;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .license-name {
+            background: #495057;
+            color: white;
+            padding: 15px;
+            font-weight: 600;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: sticky;
+            left: 0;
+            z-index: 5;
+        }
+
+        .license-price {
+            font-size: 0.8rem;
+            opacity: 0.8;
+            margin-top: 5px;
+        }
+
+        .grid-cell {
+            background: white;
+            padding: 10px;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 60px;
+        }
+
+        .support-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .full-support {
+            background: #28a745;
+            color: white;
+        }
+
+        .partial-support {
+            background: #ffc107;
+            color: #212529;
+        }
+
+        .addon-required {
+            background: #17a2b8;
+            color: white;
+        }
+
+        .no-support {
+            background: #dc3545;
+            color: white;
+        }
+
+        .recommendations {
+            padding: 30px;
+            background: #f8f9fa;
+        }
+
+        .recommendations h2 {
+            color: #0078d4;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+
+        .recommendation-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-left: 4px solid #0078d4;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .recommendation-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #0078d4;
+            margin-bottom: 10px;
+        }
+
+        .recommendation-price {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #28a745;
+            margin-bottom: 10px;
+        }
+
+        .recommendation-details {
+            color: #6c757d;
+            line-height: 1.5;
+        }
+
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 20px;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+        }
+
+        .clear-button {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.3s ease;
+        }
+
+        .clear-button:hover {
+            background: #c82333;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .license-grid {
+                grid-template-columns: 200px repeat(var(--feature-count), 100px);
+            }
+            
+            .grid-header, .license-name {
+                padding: 10px 5px;
+                font-size: 0.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔍 Microsoft License Selector</h1>
+            <p>Select the features you need and get personalized license recommendations</p>
+        </div>
+
+        <div class="feature-selector">
+            <h2>🎯 What features do you need?</h2>
+            <div class="features-grid" id="featuresGrid"></div>
+            <button class="clear-button" onclick="clearAllSelections()">Clear All Selections</button>
+        </div>
+
+        <div class="grid-container">
+            <div class="legend">
+                <div class="legend-item">
+                    <div class="support-icon full-support">✓</div>
+                    <span>Included</span>
+                </div>
+                <div class="legend-item">
+                    <div class="support-icon partial-support">~</div>
+                    <span>Partial/Limited</span>
+                </div>
+                <div class="legend-item">
+                    <div class="support-icon addon-required">+</div>
+                    <span>Add-on Required</span>
+                </div>
+                <div class="legend-item">
+                    <div class="support-icon no-support">✗</div>
+                    <span>Not Available</span>
+                </div>
+            </div>
+            <div class="license-grid" id="licenseGrid"></div>
+        </div>
+
+        <div class="recommendations">
+            <h2>💡 Recommended Licenses</h2>
+            <div id="recommendationsContainer">
+                <p>Select the features you need above to see personalized license recommendations.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const features = [
+            'Visual Studio IDE',
+            'Office Desktop Apps',
+            'Office Web Apps',
+            'Microsoft Teams',
+            'Azure DevOps',
+            'GitHub Enterprise',
+            'Code AI (GitHub Copilot)',
+            'Office AI (M365 Copilot)',
+            'Azure Credits',
+            'Microsoft Software Access',
+            'Enterprise Security',
+            'Advanced Testing',
+            'Custom AI Agents',
+            'Premium Support'
+        ];
+
+        const licenses = [
+            {
+                name: 'Visual Studio Community',
+                price: 'FREE',
+                category: 'development',
+                features: {
+                    'Visual Studio IDE': 'full',
+                    'Office Desktop Apps': 'none',
+                    'Office Web Apps': 'none',
+                    'Microsoft Teams': 'none',
+                    'Azure DevOps': 'partial',
+                    'GitHub Enterprise': 'none',
+                    'Code AI (GitHub Copilot)': 'none',
+                    'Office AI (M365 Copilot)': 'none',
+                    'Azure Credits': 'none',
+                    'Microsoft Software Access': 'none',
+                    'Enterprise Security': 'none',
+                    'Advanced Testing': 'partial',
+                    'Custom AI Agents': 'none',
+                    'Premium Support': 'none'
+                }
+            },
+            {
+                name: 'Visual Studio Professional',
+                price: '$45/month',
+                category: 'development',
+                features: {
+                    'Visual Studio IDE': 'full',
+                    'Office Desktop Apps': 'full',
+                    'Office Web Apps': 'full',
+                    'Microsoft Teams': 'full',
+                    'Azure DevOps': 'full',
+                    'GitHub Enterprise': 'none',
+                    'Code AI (GitHub Copilot)': 'addon',
+                    'Office AI (M365 Copilot)': 'addon',
+                    'Azure Credits': 'partial',
+                    'Microsoft Software Access': 'partial',
+                    'Enterprise Security': 'partial',
+                    'Advanced Testing': 'partial',
+                    'Custom AI Agents': 'addon',
+                    'Premium Support': 'partial'
+                }
+            },
+            {
+                name: 'Visual Studio Enterprise',
+                price: '$250/month',
+                category: 'development',
+                features: {
+                    'Visual Studio IDE': 'full',
+                    'Office Desktop Apps': 'full',
+                    'Office Web Apps': 'full',
+                    'Microsoft Teams': 'full',
+                    'Azure DevOps': 'full',
+                    'GitHub Enterprise': 'full',
+                    'Code AI (GitHub Copilot)': 'addon',
+                    'Office AI (M365 Copilot)': 'addon',
+                    'Azure Credits': 'full',
+                    'Microsoft Software Access': 'full',
+                    'Enterprise Security': 'full',
+                    'Advanced Testing': 'full',
+                    'Custom AI Agents': 'addon',
+                    'Premium Support': 'full'
+                }
+            },
+            {
+                name: 'Microsoft 365 Business Basic',
+                price: '$6/month',
+                category: 'productivity',
+                features: {
+                    'Visual Studio IDE': 'none',
+                    'Office Desktop Apps': 'none',
+                    'Office Web Apps': 'full',
+                    'Microsoft Teams': 'full',
+                    'Azure DevOps': 'none',
+                    'GitHub Enterprise': 'none',
+                    'Code AI (GitHub Copilot)': 'none',
+                    'Office AI (M365 Copilot)': 'addon',
+                    'Azure Credits': 'none',
+                    'Microsoft Software Access': 'none',
+                    'Enterprise Security': 'partial',
+                    'Advanced Testing': 'none',
+                    'Custom AI Agents': 'addon',
+                    'Premium Support': 'none'
+                }
+            },
+            {
+                name: 'Microsoft 365 Business Standard',
+                price: '$12.50/month',
+                category: 'productivity',
+                features: {
+                    'Visual Studio IDE': 'none',
+                    'Office Desktop Apps': 'full',
+                    'Office Web Apps': 'full',
+                    'Microsoft Teams': 'full',
+                    'Azure DevOps': 'none',
+                    'GitHub Enterprise': 'none',
+                    'Code AI (GitHub Copilot)': 'none',
+                    'Office AI (M365 Copilot)': 'addon',
+                    'Azure Credits': 'none',
+                    'Microsoft Software Access': 'none',
+                    'Enterprise Security': 'partial',
+                    'Advanced Testing': 'none',
+                    'Custom AI Agents': 'addon',
+                    'Premium Support': 'none'
+                }
+            },
+            {
+                name: 'Microsoft 365 Business Premium',
+                price: '$22/month',
+                category: 'productivity',
+                features: {
+                    'Visual Studio IDE': 'none',
+                    'Office Desktop Apps': 'full',
+                    'Office Web Apps': 'full',
+                    'Microsoft Teams': 'full',
+                    'Azure DevOps': 'none',
+                    'GitHub Enterprise': 'none',
+                    'Code AI (GitHub Copilot)': 'none',
+                    'Office AI (M365 Copilot)': 'addon',
+                    'Azure Credits': 'none',
+                    'Microsoft Software Access': 'none',
+                    'Enterprise Security': 'full',
+                    'Advanced Testing': 'none',
+                    'Custom AI Agents': 'addon',
+                    'Premium Support': 'partial'
+                }
+            },
+            {
+                name: 'Microsoft 365 E3',
+                price: '$36/month',
+                category: 'enterprise',
+                features: {
+                    'Visual Studio IDE': 'none',
+                    'Office Desktop Apps': 'full',
+                    'Office Web Apps': 'full',
+                    'Microsoft Teams': 'full',
+                    'Azure DevOps': 'none',
+                    'GitHub Enterprise': 'none',
+                    'Code AI (GitHub Copilot)': 'none',
+                    'Office AI (M365 Copilot)': 'addon',
+                    'Azure Credits': 'none',
+                    'Microsoft Software Access': 'none',
+                    'Enterprise Security': 'full',
+                    'Advanced Testing': 'none',
+                    'Custom AI Agents': 'addon',
+                    'Premium Support': 'full'
+                }
+            },
+            {
+                name: 'Microsoft 365 E5',
+                price: '$57/month',
+                category: 'enterprise',
+                features: {
+                    'Visual Studio IDE': 'none',
+                    'Office Desktop Apps': 'full',
+                    'Office Web Apps': 'full',
+                    'Microsoft Teams': 'full',
+                    'Azure DevOps': 'none',
+                    'GitHub Enterprise': 'none',
+                    'Code AI (GitHub Copilot)': 'none',
+                    'Office AI (M365 Copilot)': 'addon',
+                    'Azure Credits': 'none',
+                    'Microsoft Software Access': 'none',
+                    'Enterprise Security': 'full',
+                    'Advanced Testing': 'none',
+                    'Custom AI Agents': 'addon',
+                    'Premium Support': 'full'
+                }
+            },
+            {
+                name: 'GitHub Enterprise Cloud',
+                price: '$21/month',
+                category: 'development',
+                features: {
+                    'Visual Studio IDE': 'none',
+                    'Office Desktop Apps': 'none',
+                    'Office Web Apps': 'none',
+                    'Microsoft Teams': 'none',
+                    'Azure DevOps': 'full',
+                    'GitHub Enterprise': 'full',
+                    'Code AI (GitHub Copilot)': 'addon',
+                    'Office AI (M365 Copilot)': 'none',
+                    'Azure Credits': 'none',
+                    'Microsoft Software Access': 'none',
+                    'Enterprise Security': 'full',
+                    'Advanced Testing': 'partial',
+                    'Custom AI Agents': 'none',
+                    'Premium Support': 'full'
+                }
+            },
+            {
+                name: 'GitHub Copilot Pro',
+                price: '$10/month',
+                category: 'ai',
+                features: {
+                    'Visual Studio IDE': 'none',
+                    'Office Desktop Apps': 'none',
+                    'Office Web Apps': 'none',
+                    'Microsoft Teams': 'none',
+                    'Azure DevOps': 'none',
+                    'GitHub Enterprise': 'none',
+                    'Code AI (GitHub Copilot)': 'full',
+                    'Office AI (M365 Copilot)': 'none',
+                    'Azure Credits': 'none',
+                    'Microsoft Software Access': 'none',
+                    'Enterprise Security': 'none',
+                    'Advanced Testing': 'none',
+                    'Custom AI Agents': 'none',
+                    'Premium Support': 'none'
+                }
+            },
+            {
+                name: 'Microsoft 365 Copilot',
+                price: '$30/month',
+                category: 'ai',
+                features: {
+                    'Visual Studio IDE': 'none',
+                    'Office Desktop Apps': 'none',
+                    'Office Web Apps': 'none',
+                    'Microsoft Teams': 'none',
+                    'Azure DevOps': 'none',
+                    'GitHub Enterprise': 'none',
+                    'Code AI (GitHub Copilot)': 'none',
+                    'Office AI (M365 Copilot)': 'full',
+                    'Azure Credits': 'none',
+                    'Microsoft Software Access': 'none',
+                    'Enterprise Security': 'none',
+                    'Advanced Testing': 'none',
+                    'Custom AI Agents': 'partial',
+                    'Premium Support': 'none'
+                }
+            },
+            {
+                name: 'Azure DevOps Basic',
+                price: '$6/month',
+                category: 'development',
+                features: {
+                    'Visual Studio IDE': 'none',
+                    'Office Desktop Apps': 'none',
+                    'Office Web Apps': 'none',
+                    'Microsoft Teams': 'none',
+                    'Azure DevOps': 'full',
+                    'GitHub Enterprise': 'none',
+                    'Code AI (GitHub Copilot)': 'none',
+                    'Office AI (M365 Copilot)': 'none',
+                    'Azure Credits': 'none',
+                    'Microsoft Software Access': 'none',
+                    'Enterprise Security': 'partial',
+                    'Advanced Testing': 'none',
+                    'Custom AI Agents': 'none',
+                    'Premium Support': 'none'
+                }
+            }
+        ];
+
+        document.documentElement.style.setProperty('--feature-count', features.length);
+
+        function initializeGrid() {
+            // Create feature selector
+            const featuresGrid = document.getElementById('featuresGrid');
+            features.forEach((feature, index) => {
+                const featureItem = document.createElement('div');
+                featureItem.className = 'feature-item';
+                featureItem.innerHTML = `
+                    <input type="checkbox" id="feature-${index}" onchange="updateRecommendations()">
+                    <label for="feature-${index}">${feature}</label>
+                `;
+                featuresGrid.appendChild(featureItem);
+            });
+
+            // Create license grid
+            const licenseGrid = document.getElementById('licenseGrid');
+            
+            // Header row
+            const headerCell = document.createElement('div');
+            headerCell.className = 'grid-header';
+            headerCell.textContent = 'License';
+            licenseGrid.appendChild(headerCell);
+
+            features.forEach(feature => {
+                const headerCell = document.createElement('div');
+                headerCell.className = 'grid-header';
+                headerCell.textContent = feature;
+                licenseGrid.appendChild(headerCell);
+            });
+
+            // License rows
+            licenses.forEach(license => {
+                const nameCell = document.createElement('div');
+                nameCell.className = 'license-name';
+                nameCell.innerHTML = `
+                    <div>${license.name}</div>
+                    <div class="license-price">${license.price}</div>
+                `;
+                licenseGrid.appendChild(nameCell);
+
+                features.forEach(feature => {
+                    const cell = document.createElement('div');
+                    cell.className = 'grid-cell';
+                    
+                    const supportLevel = license.features[feature];
+                    const icon = document.createElement('div');
+                    icon.className = 'support-icon';
+                    
+                    switch(supportLevel) {
+                        case 'full':
+                            icon.className += ' full-support';
+                            icon.textContent = '✓';
+                            break;
+                        case 'partial':
+                            icon.className += ' partial-support';
+                            icon.textContent = '~';
+                            break;
+                        case 'addon':
+                            icon.className += ' addon-required';
+                            icon.textContent = '+';
+                            break;
+                        case 'none':
+                        default:
+                            icon.className += ' no-support';
+                            icon.textContent = '✗';
+                            break;
+                    }
+                    
+                    cell.appendChild(icon);
+                    licenseGrid.appendChild(cell);
+                });
+            });
+
+            // Add click handlers to feature items
+            document.querySelectorAll('.feature-item').forEach(item => {
+                item.addEventListener('click', function(e) {
+                    if (e.target.type !== 'checkbox') {
+                        const checkbox = this.querySelector('input[type="checkbox"]');
+                        checkbox.checked = !checkbox.checked;
+                        updateRecommendations();
+                    }
+                    this.classList.toggle('selected', this.querySelector('input[type="checkbox"]').checked);
+                });
+            });
+        }
+
+        function updateRecommendations() {
+            const selectedFeatures = features.filter((feature, index) => 
+                document.getElementById(`feature-${index}`).checked
+            );
+
+            const container = document.getElementById('recommendationsContainer');
+            
+            if (selectedFeatures.length === 0) {
+                container.innerHTML = '<p>Select the features you need above to see personalized license recommendations.</p>';
+                return;
+            }
+
+            const recommendations = generateRecommendations(selectedFeatures);
+            
+            container.innerHTML = recommendations.map(rec => `
+                <div class="recommendation-card">
+                    <div class="recommendation-title">${rec.title}</div>
+                    <div class="recommendation-price">Total: ${rec.price}</div>
+                    <div class="recommendation-details">${rec.details}</div>
+                </div>
+            `).join('');
+
+            // Update feature item styling
+            document.querySelectorAll('.feature-item').forEach(item => {
+                const checkbox = item.querySelector('input[type="checkbox"]');
+                item.classList.toggle('selected', checkbox.checked);
+            });
+        }
+
+        function generateRecommendations(selectedFeatures) {
+            const recommendations = [];
+            
+            // Single license recommendations
+            licenses.forEach(license => {
+                const coverage = calculateCoverage(license, selectedFeatures);
+                if (coverage.score > 0) {
+                    const missingFeatures = coverage.missing;
+                    const addOnCost = calculateAddOnCost(missingFeatures);
+                    
+                    if (coverage.score >= 0.7 || missingFeatures.length <= 2) {
+                        let details = `${license.name} covers ${Math.round(coverage.score * 100)}% of your needs.`;
+                        
+                        if (missingFeatures.length > 0) {
+                            details += ` Missing: ${missingFeatures.join(', ')}.`;
+                            if (addOnCost > 0) {
+                                details += ` Additional cost for add-ons: $${addOnCost}/month.`;
+                            }
+                        }
+                        
+                        const totalPrice = extractPrice(license.price) + addOnCost;
+                        
+                        recommendations.push({
+                            title: `${license.name}`,
+                            price: totalPrice > 0 ? `$${totalPrice}/month` : 'FREE',
+                            details: details,
+                            score: coverage.score,
+                            totalCost: totalPrice
+                        });
+                    }
+                }
+            });
+
+            // Combination recommendations
+            if (selectedFeatures.some(f => f.includes('AI') || f === 'Code AI (GitHub Copilot)' || f === 'Office AI (M365 Copilot)')) {
+                if (selectedFeatures.includes('Visual Studio IDE') && selectedFeatures.includes('Code AI (GitHub Copilot)')) {
+                    recommendations.push({
+                        title: 'Developer with AI Combo',
+                        price: '$55/month',
+                        details: 'Visual Studio Professional ($45) + GitHub Copilot Pro ($10) - Perfect for individual developers who need IDE and code AI.',
+                        score: 0.9,
+                        totalCost: 55
+                    });
+                }
+                
+                if (selectedFeatures.includes('Office Desktop Apps') && selectedFeatures.includes('Office AI (M365 Copilot)')) {
+                    recommendations.push({
+                        title: 'Office Worker with AI Combo',
+                        price: '$42.50/month',
+                        details: 'Microsoft 365 Business Standard ($12.50) + Microsoft 365 Copilot ($30) - Great for knowledge workers who need Office apps with AI assistance.',
+                        score: 0.85,
+                        totalCost: 42.5
+                    });
+                }
+            }
+
+            // Sort by score and cost
+            recommendations.sort((a, b) => {
+                if (Math.abs(a.score - b.score) < 0.1) {
+                    return a.totalCost - b.totalCost;
+                }
+                return b.score - a.score;
+            });
+
+            return recommendations.slice(0, 5); // Top 5 recommendations
+        }
+
+        function calculateCoverage(license, selectedFeatures) {
+            let covered = 0;
+            let missing = [];
+            
+            selectedFeatures.forEach(feature => {
+                const support = license.features[feature];
+                if (support === 'full') {
+                    covered += 1;
+                } else if (support === 'partial' || support === 'addon') {
+                    covered += 0.5;
+                } else {
+                    missing.push(feature);
+                }
+            });
+            
+            return {
+                score: selectedFeatures.length > 0 ? covered / selectedFeatures.length : 0,
+                missing: missing
+            };
+        }
+
+        function calculateAddOnCost(missingFeatures) {
+            let cost = 0;
+            
+            if (missingFeatures.includes('Code AI (GitHub Copilot)')) {
+                cost += 10; // GitHub Copilot Pro
+            }
+            if (missingFeatures.includes('Office AI (M365 Copilot)')) {
+                cost += 30; // Microsoft 365 Copilot
+            }
+            if (missingFeatures.includes('GitHub Enterprise')) {
+                cost += 21; // GitHub Enterprise
+            }
+            if (missingFeatures.includes('Azure DevOps')) {
+                cost += 6; // Azure DevOps Basic
+            }
+            
+            return cost;
+        }
+
+        function extractPrice(priceString) {
+            if (priceString === 'FREE') return 0;
+            const match = priceString.match(/\$(\d+(?:\.\d+)?)/);
+            return match ? parseFloat(match[1]) : 0;
+        }
+
+        function clearAllSelections() {
+            document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+                checkbox.checked = false;
+            });
+            document.querySelectorAll('.feature-item').forEach(item => {
+                item.classList.remove('selected');
+            });
+            updateRecommendations();
+        }
+
+        // Initialize the grid when the page loads
+        initializeGrid();
+    </script>
+</body>
+</html>
